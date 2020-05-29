@@ -72,6 +72,7 @@ export default class Auth {
     // Will switch later to storing tokens in memory with silent auth for SPA, but just using localStorage here to keep things simple
     _accessToken = authResult.accessToken;
     _idToken = authResult.idToken;
+    this.scheduleTokenRenewal(); // will ask Auth0 for a new token when our current token expires
   };
 
   isAuthenticated = () => new Date().getTime() < _expiresAt;
