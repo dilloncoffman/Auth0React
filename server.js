@@ -38,6 +38,16 @@ app.get('/private', checkJwt, (req, res) => {
   });
 });
 
+function checkRole(role) {
+  return function (req, res, next) {
+    const assignedRoles = req.user['http://localhost:3000/roles'];
+    if (Array.isArray(assignedRoles) && assignedRoles.includes(role)) {
+      return next();
+    }
+    return res.status(401).send('Insufficient role');
+  };
+}
+
 // Use checkScope middleware to check that user has the read:courses scope in their access token
 app.get('/course', checkJwt, checkScope(['read:courses']), (req, res) => {
   res.json({
@@ -45,6 +55,13 @@ app.get('/course', checkJwt, checkScope(['read:courses']), (req, res) => {
       { id: 1, title: 'Building Apps with React and Redux' },
       { id: 2, title: 'Creating Reusable React Components' },
     ],
+  });
+});
+
+// checkJwt middleware to validate JWT
+app.get('/admin', checkJwt, checkRole('admin'), (req, res) => {
+  res.json({
+    message: 'Hello from an ADMIN private API!',
   });
 });
 

@@ -13,6 +13,16 @@ function Courses(props) {
       })
       .then((response) => setCourses(response.courses))
       .catch((error) => setCourses(error.message));
+
+    fetch('/admin', {
+      headers: { Authorization: `Bearer ${props.auth.getAccessToken()}` },
+    })
+      .then((response) => {
+        if (response.ok) return response.json();
+        throw new Error('Network response was not ok.');
+      })
+      .then((response) => console.log(response))
+      .catch((error) => console.log(error.message));
   }, []);
 
   return (
