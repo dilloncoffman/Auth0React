@@ -1,6 +1,6 @@
 /* eslint-disable no-shadow */
 import React from 'react';
-import { Route } from 'react-router-dom';
+import { Route, Redirect } from 'react-router-dom';
 import Home from './Home';
 import Profile from './Profile';
 import Nav from './Nav';
@@ -25,7 +25,17 @@ function App(props) {
           path="/callback"
           render={(props) => <Callback auth={auth} {...props} />}
         />
-        <Route path="/profile" component={Profile} />
+        <Route
+          path="/profile"
+          render={(props) => {
+            // eslint-disable-next-line no-unused-expressions
+            auth.isAuthenticated() ? (
+              <Profile auth={auth} {...props} />
+            ) : (
+              <Redirect to="/" />
+            );
+          }}
+        />
       </div>
     </>
   );
