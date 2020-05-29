@@ -1,5 +1,5 @@
 /* eslint-disable no-shadow */
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { Route, Redirect } from 'react-router-dom';
 import Home from './Home';
 import Profile from './Profile';
@@ -15,7 +15,14 @@ import AuthContext from './AuthContext';
 function App(props) {
   const { history } = props;
   const [auth] = useState(new Auth(history));
+  const [tokenRenewalComplete, setTokenRenewalComplete] = useState(false);
 
+  useEffect(() => {
+    auth.renewToken(() => setTokenRenewalComplete(true));
+  }, []);
+
+  // Show loading message until the token renewal check is complete
+  if (!tokenRenewalComplete) return 'Loading...';
   return (
     <AuthContext.Provider value={auth}>
       <Nav auth={auth} />

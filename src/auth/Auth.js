@@ -2,6 +2,13 @@ import auth0 from 'auth0-js';
 
 const REDIRECT_ON_LOGIN = 'redirect_on_login';
 
+// Stored outside class since they're private
+// eslint-disable-next-line no-unused-vars
+let _idToken = null;
+let _accessToken = null;
+let _scopes = null;
+let _expiresAt = null;
+
 export default class Auth {
   constructor(history) {
     this.history = history;
@@ -47,13 +54,12 @@ export default class Auth {
 
   setSession = (authResult) => {
     // Set the time the access token will expire
-    const expiresAt = JSON.stringify(
+    _expiresAt =
       // 1. authResult.expiresIn contains expiration in seconds
       // 2. Multiply by 1000 to convert into milliseconds
       // 3. Add current Unix epoch time
       // This gives us the Unix epoch time when the token will expire
-      authResult.expiresIn * 1000 + new Date().getTime()
-    );
+      authResult.expiresIn * 1000 + new Date().getTime();
 
     /*
       If there is a values on the `scope` param from the authResult,
@@ -61,26 +67,16 @@ export default class Auth {
       use the scopes as requested. If no scopes were requested,
       set it to nothing
     */
-    const scopes = authResult.scope || this.requestedScopes || '';
+    _scopes = authResult.scope || this.requestedScopes || '';
 
     // Will switch later to storing tokens in memory with silent auth for SPA, but just using localStorage here to keep things simple
-    localStorage.setItem('access_token', authResult.accessToken);
-    localStorage.setItem('id_token', authResult.idToken);
-    localStorage.setItem('expires_at', expiresAt);
-    localStorage.setItem('scopes', JSON.stringify(scopes)); // our API calls will receive the access_token and parse it to determine the user's authorization
+    _accessToken = authResult.accessToken;
+    _idToken = authResult.idToken;
   };
 
-  isAuthenticated = () => {
-    const expiresAt = JSON.parse(localStorage.getItem('expires_at'));
-    return new Date().getTime() < expiresAt;
-  };
+  isAuthenticated = () => new Date().getTime() < _expiresAt;
 
   logout = () => {
-    localStorage.removeItem('access_token');
-    localStorage.removeItem('id_token');
-    localStorage.removeItem('expires_at');
-    localStorage.removeItem('scopes');
-    this.userProfile = null;
     this.auth0.logout({
       clientID: process.env.REACT_APP_AUTH0_CLIENT_ID,
       returnTo: 'http://localhost:3000',
@@ -88,11 +84,10 @@ export default class Auth {
   };
 
   getAccessToken = () => {
-    const accessToken = localStorage.getItem('access_token');
-    if (!accessToken) {
+    if (!_accessToken) {
       throw new Error('No access token found');
     }
-    return accessToken;
+    return _accessToken;
   };
 
   getProfile = (callback) => {
@@ -109,9 +104,24 @@ export default class Auth {
   // Checks for list of granted scopes by looking in local storage for list of scopes, if there's no scopes in localStorage then it defaults to an empty string and splits on that string
   // Uses .every to iterate over each scope and returns true fi list of scopes passed into userHasScopes exist in localStorage
   userHasScopes(scopes) {
-    const grantedScopes = (
-      JSON.parse(localStorage.getItem('scopes')) || ''
-    ).split(' ');
+    const grantedScopes = (_scopes || '').split(' ');
     return scopes.every((scope) => grantedScopes.includes(scope));
+  }
+
+  // Need to call this before the app is displayed/starts up so we know fi the user is logged in
+  renewToken(cb) {
+    this.auth0.checkSession({}, (err, result) => {
+      if (err) {
+        console.log(`Error: ${err.error} - ${err.error_description}.`);
+      } else {
+        this.setSession(result);
+      }
+      if (cb) cb(err, result);
+    });
+  }
+
+  scheduleTokenRenewal() {
+    const delay = _expiresAt - Date.now();
+    if (delay > 0) setTimeout(() => this.renewToken(), delay);
   }
 }
