@@ -13,7 +13,7 @@ function App(props) {
 
   return (
     <>
-      <Nav />
+      <Nav auth={auth} />
       <div className="body">
         {/* render prop in order to pass down auth as a prop to the Home component and spreading rest of props passed into this component */}
         <Route

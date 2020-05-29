@@ -1,7 +1,8 @@
 import React from 'react';
 import { Link } from 'react-router-dom';
 
-function Nav() {
+function Nav(props) {
+  const { auth } = props;
   return (
     <nav>
       <ul>
@@ -10,6 +11,14 @@ function Nav() {
         </li>
         <li>
           <Link to="/profile">Profile</Link>
+        </li>
+        <li>
+          <button
+            type="button"
+            onClick={auth.isAuthenticated() ? auth.logout : auth.login}
+          >
+            {auth.isAuthenticated() ? 'Log Out' : 'Log In'}
+          </button>
         </li>
       </ul>
     </nav>
