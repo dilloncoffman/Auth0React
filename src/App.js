@@ -8,6 +8,7 @@ import Auth from './auth/Auth';
 import Callback from './Callback';
 import Public from './Public';
 import Private from './Private';
+import Courses from './Courses';
 
 function App(props) {
   const { history } = props;
@@ -44,6 +45,16 @@ function App(props) {
           render={(props) =>
             auth.isAuthenticated() ? (
               <Private auth={auth} {...props} />
+            ) : (
+              auth.login()
+            )
+          }
+        />
+        <Route
+          path="/courses"
+          render={(props) =>
+            auth.isAuthenticated() && auth.userHasScopes(['read:courses']) ? ( // this scope check is for user experience, not security. It's the server's job to validate the user is authorized when an API call is made
+              <Courses auth={auth} {...props} />
             ) : (
               auth.login()
             )

@@ -20,6 +20,11 @@ function Nav(props) {
             <Link to="/private">Private</Link>
           </li>
         )}
+        {auth.isAuthenticated() && auth.userHasScopes(['read:courses']) && (
+          <li>
+            <Link to="/courses">Courses</Link>
+          </li>
+        )}
         <li>
           <button
             type="button"

@@ -39,7 +39,7 @@ app.get('/private', checkJwt, (req, res) => {
 });
 
 // Use checkScope middleware to check that user has the read:courses scope in their access token
-app.get('/courses', checkJwt, checkScope(['read:courses']), (req, res) => {
+app.get('/course', checkJwt, checkScope(['read:courses']), (req, res) => {
   res.json({
     courses: [
       { id: 1, title: 'Building Apps with React and Redux' },
