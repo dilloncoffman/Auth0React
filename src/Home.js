@@ -1,4 +1,4 @@
-import React from 'react'
+import React from 'react';
 
 function Home(props) {
   return (
@@ -6,8 +6,7 @@ function Home(props) {
       <h1>Home</h1>
       <button onClick={props.auth.login}>Log In</button>
     </div>
-  )
+  );
 }
 
 export default Home;
-
