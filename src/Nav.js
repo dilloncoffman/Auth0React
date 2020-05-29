@@ -13,6 +13,9 @@ function Nav(props) {
           <Link to="/profile">Profile</Link>
         </li>
         <li>
+          <Link to="/public">Public</Link>
+        </li>
+        <li>
           <button
             type="button"
             onClick={auth.isAuthenticated() ? auth.logout : auth.login}
