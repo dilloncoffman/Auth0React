@@ -27,14 +27,14 @@ function App(props) {
         />
         <Route
           path="/profile"
-          render={(props) => {
+          render={(props) =>
             // eslint-disable-next-line no-unused-expressions
             auth.isAuthenticated() ? (
               <Profile auth={auth} {...props} />
             ) : (
               <Redirect to="/" />
-            );
-          }}
+            )
+          }
         />
       </div>
     </>
