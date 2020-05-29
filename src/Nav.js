@@ -15,6 +15,11 @@ function Nav(props) {
         <li>
           <Link to="/public">Public</Link>
         </li>
+        {auth.isAuthenticated() && (
+          <li>
+            <Link to="/private">Private</Link>
+          </li>
+        )}
         <li>
           <button
             type="button"

@@ -7,6 +7,7 @@ import Nav from './Nav';
 import Auth from './auth/Auth';
 import Callback from './Callback';
 import Public from './Public';
+import Private from './Private';
 
 function App(props) {
   const { history } = props;
@@ -38,6 +39,16 @@ function App(props) {
           }
         />
         <Route path="/public" component={Public} />
+        <Route
+          path="/private"
+          render={(props) =>
+            auth.isAuthenticated() ? (
+              <Private auth={auth} {...props} />
+            ) : (
+              auth.login()
+            )
+          }
+        />
       </div>
     </>
   );
