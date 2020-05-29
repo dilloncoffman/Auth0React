@@ -1,5 +1,7 @@
 import auth0 from 'auth0-js';
 
+const REDIRECT_ON_LOGIN = 'redirect_on_login';
+
 export default class Auth {
   constructor(history) {
     this.history = history;
@@ -16,6 +18,10 @@ export default class Auth {
   }
 
   login = () => {
+    localStorage.setItem(
+      REDIRECT_ON_LOGIN,
+      JSON.stringify(this.history.location)
+    );
     this.auth0.authorize(); // redirect browser to Auth0 login page
   };
 
@@ -24,12 +30,18 @@ export default class Auth {
       // get the data passed over in the URL and parse that out
       if (authResult && authResult.accessToken && authResult.idToken) {
         this.setSession(authResult); // write that data to our session (local storage - NOT the preferred way of storing tokens but for now)
-        this.history.push('/');
+        // location to redirect to once the user is logged in (this is the page they were on before clicking log in so they are redirected back to where they were)
+        const redirectLocation =
+          localStorage.getItem(REDIRECT_ON_LOGIN) === 'undefined'
+            ? '/'
+            : JSON.parse(localStorage.getItem(REDIRECT_ON_LOGIN));
+        this.history.push(redirectLocation);
       } else if (err) {
         this.history.push('/');
         alert(`Error: ${err.error}. Check the console for further details.`);
         console.log(err);
       }
+      localStorage.removeItem(REDIRECT_ON_LOGIN);
     });
   };
 
